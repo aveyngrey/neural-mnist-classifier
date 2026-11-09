@@ -22,7 +22,7 @@ def init() -> None:
     global inputs_train, inputs_test, targets_train, targets_test
     global weights_hidden, biases_hidden, weights_output, biases_output
 
-    print("Downloading MNIST")
+    print("Downloading MNIST...")
     mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="liac-arff")
     inputs = mnist.data.astype(np.float32)
     inputs /= 255.0
@@ -57,6 +57,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
 
                 input = inputs_train[sample_index]
                 z_hidden = input @ weights_hidden.T + biases_hidden.T
+                a_hidden = relu(z_hidden)
                 
                 sample_index += 1
 
