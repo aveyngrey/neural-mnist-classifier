@@ -64,6 +64,11 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
 
                 z_output = a_hidden @ weights_output.T + biases_output.T
                 a_output = softmax(z_output)
+
+                target_index = targets_train[sample_index]
+                prediction = a_output[0][target_index]
+                prediction = np.clip(prediction, 1e-15, 1 - 1e-15)
+                loss = -1 * np.log10(prediction)
                 
                 sample_index += 1
 
