@@ -39,6 +39,9 @@ def init() -> None:
                      * np.sqrt(1 / HIDDEN_SIZE) # Xavier initialization
     biases_output = np.zeros((NUM_CLASSES, 1))
 
+def relu(x : npt.NDArray) -> npt.NDArray:
+    return np.maximum(0, x)
+
 def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -> None:
     num_batches = 60000 // batch_size + 1
     for epoch in range(1):
