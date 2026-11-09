@@ -63,7 +63,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 a_hidden = relu(z_hidden)
 
                 z_output = a_hidden @ weights_output.T + biases_output.T
-                
+                a_output = softmax(z_output)
                 
                 sample_index += 1
 
