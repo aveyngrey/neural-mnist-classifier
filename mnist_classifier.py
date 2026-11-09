@@ -58,6 +58,8 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 input = inputs_train[sample_index]
                 z_hidden = input @ weights_hidden.T + biases_hidden.T
                 a_hidden = relu(z_hidden)
+
+                z_output = a_hidden @ weights_output.T + biases_output.T
                 
                 sample_index += 1
 
