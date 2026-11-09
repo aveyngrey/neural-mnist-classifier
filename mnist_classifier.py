@@ -27,7 +27,7 @@ def init() -> None:
     inputs /= 255.0
     targets = mnist.target.astype(np.uint8)
     inputs_train, inputs_test = inputs[:60000], inputs[60000:]
-    targets_train, targets_test = targets[:60000], inputs[60000:]
+    targets_train, targets_test = targets[:60000], targets[60000:]
     print("Download complete!")
 
     weights_hidden = np.random.randn(HIDDEN_SIZE, NUM_INPUTS) \
@@ -38,13 +38,26 @@ def init() -> None:
                      * np.sqrt(1 / HIDDEN_SIZE) # Xavier initialization
     biases_output = np.zeros((NUM_CLASSES, 1))
 
-    print(weights_hidden)
-    print(biases_hidden)
-    print(weights_output)
-    print(biases_output)
+def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -> None:
+    num_batches = 60000 // batch_size + 1
+    for epoch in range(epochs):
+        sample_count = 0
+        epoch_done = False
+        for batch in range(num_batches):
+            if epoch_done:
+                break
+            for sample in range(batch_size):
+                if sample_count >= 60000:
+                    epoch_done = True
+                    break
+                
+                sample_count += 1
+
+    
 
 def main() -> None:
     init()
+    train(epochs=1)
 
 if __name__ == "__main__":
     main()
