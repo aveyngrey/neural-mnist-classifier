@@ -2,16 +2,17 @@ import numpy as np
 import numpy.typing as npt
 from sklearn.datasets import fetch_openml
 
-inputs_train: npt.NDArray | None = None
-inputs_test: npt.NDArray | None = None
-targets_train: npt.NDArray | None = None
-targets_test: npt.NDArray | None = None
+# uses np zero array of shape (0, 0) as a placeholder
+inputs_train: npt.NDArray = np.zeros((0, 0))
+inputs_test: npt.NDArray = np.zeros((0, 0))
+targets_train: npt.NDArray = np.zeros((0, 0))
+targets_test: npt.NDArray = np.zeros((0, 0))
 
-weights_hidden: npt.NDArray | None = None
-biases_hidden: npt.NDArray | None = None
+weights_hidden: npt.NDArray = np.zeros((0, 0))
+biases_hidden: npt.NDArray = np.zeros((0, 0))
 
-weights_output: npt.NDArray | None = None
-biases_output: npt.NDArray | None = None
+weights_output: npt.NDArray = np.zeros((0, 0))
+biases_output: npt.NDArray = np.zeros((0, 0))
 
 NUM_INPUTS: int = 784 
 HIDDEN_SIZE: int = 128
@@ -40,18 +41,21 @@ def init() -> None:
 
 def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -> None:
     num_batches = 60000 // batch_size + 1
-    for epoch in range(epochs):
-        sample_count = 0
+    for epoch in range(1):
+        sample_index = 0
         epoch_done = False
-        for batch in range(num_batches):
+        for batch in range(1):
             if epoch_done:
                 break
-            for sample in range(batch_size):
-                if sample_count >= 60000:
+            for sample in range(1):
+                if sample_index >= 60000:
                     epoch_done = True
                     break
+
+                input = inputs_train[sample_index]
+                z_hidden = input @ weights_hidden.T + biases_hidden.T
                 
-                sample_count += 1
+                sample_index += 1
 
     
 
