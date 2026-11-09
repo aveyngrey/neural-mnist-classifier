@@ -39,8 +39,11 @@ def init() -> None:
                      * np.sqrt(1 / HIDDEN_SIZE) # Xavier initialization
     biases_output = np.zeros((NUM_CLASSES, 1))
 
-def relu(x : npt.NDArray) -> npt.NDArray:
+def relu(x: npt.NDArray) -> npt.NDArray:
     return np.maximum(0, x)
+
+def softmax(x: npt.NDArray) -> npt.NDArray:
+    return np.exp(x - np.max(x)) / np.sum(np.exp(x - np.max(x)))
 
 def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -> None:
     num_batches = 60000 // batch_size + 1
@@ -60,6 +63,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 a_hidden = relu(z_hidden)
 
                 z_output = a_hidden @ weights_output.T + biases_output.T
+                
                 
                 sample_index += 1
 
