@@ -58,6 +58,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                     epoch_done = True
                     break
 
+                # forward pass
                 input = inputs_train[sample_index]
                 z_hidden = input @ weights_hidden.T + biases_hidden.T
                 a_hidden = relu(z_hidden)
@@ -65,10 +66,16 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 z_output = a_hidden @ weights_output.T + biases_output.T
                 a_output = softmax(z_output)
 
-                target_index = targets_train[sample_index]
-                prediction = a_output[0][target_index]
+                # calculate loss
+                target = targets_train[sample_index]
+                prediction = a_output[0][target]
                 prediction = np.clip(prediction, 1e-15, 1 - 1e-15)
                 loss = -1 * np.log10(prediction)
+                
+                # backpropagation
+                target_one_hot = np.zeros((1, 10))
+                target_one_hot[0][target] = 1
+                d_error = a_output - target_one_hot
                 
                 sample_index += 1
 
