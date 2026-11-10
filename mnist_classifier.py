@@ -42,6 +42,9 @@ def init() -> None:
 def relu(x: npt.NDArray) -> npt.NDArray:
     return np.maximum(0, x)
 
+def d_relu(x: npt.NDArray) -> npt.NDArray:
+    return (x > 0).astype(x.dtype)
+
 def softmax(x: npt.NDArray) -> npt.NDArray:
     return np.exp(x - np.max(x)) / np.sum(np.exp(x - np.max(x)))
 
