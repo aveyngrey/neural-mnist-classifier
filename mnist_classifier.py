@@ -54,12 +54,17 @@ def softmax(x: npt.NDArray) -> npt.NDArray:
 
 def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -> float:
     global weights_hidden, biases_hidden, weights_output, biases_output
+    global inputs_train, targets_train
 
+    print("Training...")
     start_time = time.perf_counter()
     
     num_batches = 60000 // batch_size + 1
     for epoch in range(epochs):
         sample_index = 0
+        permutation = np.random.permutation(len(inputs_train))
+        inputs_train = inputs_train[permutation]
+        targets_train = targets_train[permutation]
         epoch_done = False
         for batch in range(num_batches):
             if epoch_done:
@@ -108,6 +113,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
             weights_output -= learning_rate * dw_output
             biases_output -= learning_rate * db_output
 
+    print("Training Complete!")
     return time.perf_counter() - start_time
 
 def test_accuracy() -> float:
@@ -125,8 +131,8 @@ def test_accuracy() -> float:
     return num_correct / 10_000
 
 def main() -> None:
-    print(f"Init Time: {init():.2f}")
-    # print(f"Train Time: {train():.2f}")
+    print(f"Init Time: {init():.2f}s")
+    print(f"Train Time: {train():.2f}s")
     print(f"Accuracy: {test_accuracy():.2%}")
 
 if __name__ == "__main__":
