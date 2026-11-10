@@ -69,6 +69,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
 
                 # forward pass
                 input = inputs_train[sample_index]
+                input = input.reshape(1, 784)
                 z_hidden = input @ weights_hidden.T + biases_hidden.T
                 a_hidden = relu(z_hidden)
 
@@ -88,6 +89,8 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
 
                 dw_output += d_error.T @ a_hidden
                 db_output += d_error.T
+
+                dw_hidden += (d_error @ weights_output * d_relu(a_hidden)).T @ input
                 
                 sample_index += 1
 
