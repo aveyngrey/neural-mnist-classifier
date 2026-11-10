@@ -95,6 +95,11 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 
                 sample_index += 1
 
+            weights_hidden -= learning_rate * dw_hidden
+            biases_hidden -= learning_rate * db_hidden
+            weights_output -= learning_rate * dw_output
+            biases_output -= learning_rate * db_output
+
     
 
 def main() -> None:
