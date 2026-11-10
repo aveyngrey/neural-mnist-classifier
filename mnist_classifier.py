@@ -84,6 +84,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 d_error = a_output - target_one_hot
 
                 dw_output += d_error.T @ a_hidden
+                db_output += d_error.T
                 
                 sample_index += 1
 
