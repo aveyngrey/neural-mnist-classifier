@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.typing as npt
 from sklearn.datasets import fetch_openml
+import time
 
 # uses np zero array of shape (0, 0) as a placeholder
 inputs_train: npt.NDArray = np.zeros((0, 0))
@@ -18,9 +19,11 @@ NUM_INPUTS: int = 784
 HIDDEN_SIZE: int = 128
 NUM_CLASSES: int = 10
 
-def init() -> None:
+def init() -> float:
     global inputs_train, inputs_test, targets_train, targets_test
     global weights_hidden, biases_hidden, weights_output, biases_output
+
+    start_time = time.perf_counter()
 
     print("Downloading MNIST...")
     mnist = fetch_openml("mnist_784", version=1, as_frame=False, parser="liac-arff")
@@ -34,10 +37,11 @@ def init() -> None:
     weights_hidden = np.random.randn(HIDDEN_SIZE, NUM_INPUTS) \
                      * np.sqrt(2 / NUM_INPUTS) # He initalization
     biases_hidden = np.zeros((HIDDEN_SIZE, 1))
-
     weights_output = np.random.randn(NUM_CLASSES, HIDDEN_SIZE) \
                      * np.sqrt(1 / HIDDEN_SIZE) # Xavier initialization
     biases_output = np.zeros((NUM_CLASSES, 1))
+
+    return time.perf_counter() - start_time
 
 def relu(x: npt.NDArray) -> npt.NDArray:
     return np.maximum(0, x)
@@ -48,12 +52,16 @@ def d_relu(x: npt.NDArray) -> npt.NDArray:
 def softmax(x: npt.NDArray) -> npt.NDArray:
     return np.exp(x - np.max(x)) / np.sum(np.exp(x - np.max(x)))
 
-def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -> None:
+def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -> float:
+    global weights_hidden, biases_hidden, weights_output, biases_output
+
+    start_time = time.perf_counter()
+    
     num_batches = 60000 // batch_size + 1
-    for epoch in range(1):
+    for epoch in range(epochs):
         sample_index = 0
         epoch_done = False
-        for batch in range(1):
+        for batch in range(num_batches):
             if epoch_done:
                 break
             dw_hidden = np.zeros((HIDDEN_SIZE, NUM_INPUTS))
@@ -62,7 +70,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
             dw_output = np.zeros((NUM_CLASSES, HIDDEN_SIZE))
             db_output = np.zeros((NUM_CLASSES, 1))
 
-            for sample in range(1):
+            for sample in range(batch_size):
                 if sample_index >= 60000:
                     epoch_done = True
                     break
@@ -100,11 +108,13 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
             weights_output -= learning_rate * dw_output
             biases_output -= learning_rate * db_output
 
+    return time.perf_counter() - start_time
+
     
 
 def main() -> None:
-    init()
-    train(epochs=1)
+    print(f"Init Time: {init():.2f}")
+    print(f"Train Time: {train():.2f}")
 
 if __name__ == "__main__":
     main()
