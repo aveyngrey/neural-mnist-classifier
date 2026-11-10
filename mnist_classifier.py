@@ -53,6 +53,12 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
         for batch in range(1):
             if epoch_done:
                 break
+            dw_hidden = np.zeros((HIDDEN_SIZE, NUM_INPUTS))
+            db_hidden = np.zeros((HIDDEN_SIZE, 1))
+
+            dw_output = np.zeros((NUM_CLASSES, HIDDEN_SIZE))
+            db_output = np.zeros((NUM_CLASSES, 1))
+
             for sample in range(1):
                 if sample_index >= 60000:
                     epoch_done = True
@@ -71,11 +77,13 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 prediction = a_output[0][target]
                 prediction = np.clip(prediction, 1e-15, 1 - 1e-15)
                 loss = -1 * np.log10(prediction)
-                
+
                 # backpropagation
                 target_one_hot = np.zeros((1, 10))
                 target_one_hot[0][target] = 1
                 d_error = a_output - target_one_hot
+
+                dw_output += d_error.T @ a_hidden
                 
                 sample_index += 1
 
