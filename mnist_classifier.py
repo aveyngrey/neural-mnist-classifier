@@ -2,6 +2,7 @@ import numpy as np
 import numpy.typing as npt
 from sklearn.datasets import fetch_openml
 import time
+import matplotlib.pyplot as plt
 
 # uses np zero array of shape (0, 0) as a placeholder
 inputs_train: npt.NDArray = np.zeros((0, 0))
@@ -14,6 +15,8 @@ biases_hidden: npt.NDArray = np.zeros((0, 0))
 
 weights_output: npt.NDArray = np.zeros((0, 0))
 biases_output: npt.NDArray = np.zeros((0, 0))
+
+losses = []
 
 NUM_INPUTS: int = 784 
 HIDDEN_SIZE: int = 128
@@ -30,8 +33,8 @@ def init() -> float:
     inputs = mnist.data.astype(np.float32)
     inputs /= 255.0
     targets = mnist.target.astype(np.uint8)
-    inputs_train, inputs_test = inputs[:60000], inputs[60000:]
-    targets_train, targets_test = targets[:60000], targets[60000:]
+    inputs_train, inputs_test = inputs[:60_000], inputs[60_000:]
+    targets_train, targets_test = targets[:60_000], targets[60_000:]
     print("Download complete!")
 
     weights_hidden = np.random.randn(HIDDEN_SIZE, NUM_INPUTS) \
@@ -59,24 +62,27 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
     print("Training...")
     start_time = time.perf_counter()
     
-    num_batches = 60000 // batch_size + 1
+    num_batches = 60_000 // batch_size + 1
     for epoch in range(epochs):
         sample_index = 0
+
         permutation = np.random.permutation(len(inputs_train))
         inputs_train = inputs_train[permutation]
         targets_train = targets_train[permutation]
+
         epoch_done = False
         for batch in range(num_batches):
             if epoch_done:
                 break
             dw_hidden = np.zeros((HIDDEN_SIZE, NUM_INPUTS))
             db_hidden = np.zeros((HIDDEN_SIZE, 1))
-
             dw_output = np.zeros((NUM_CLASSES, HIDDEN_SIZE))
             db_output = np.zeros((NUM_CLASSES, 1))
 
+            batch_loss = 0
+
             for sample in range(batch_size):
-                if sample_index >= 60000:
+                if sample_index >= 60_000:
                     epoch_done = True
                     break
 
@@ -94,6 +100,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 prediction = a_output[0][target]
                 prediction = np.clip(prediction, 1e-15, 1 - 1e-15)
                 loss = -1 * np.log10(prediction)
+                batch_loss += loss
 
                 # backpropagation
                 target_one_hot = np.zeros((1, 10))
@@ -113,6 +120,8 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
             weights_output -= learning_rate * dw_output
             biases_output -= learning_rate * db_output
 
+            losses.append(batch_loss / 64)
+
     print("Training Complete!")
     return time.perf_counter() - start_time
 
@@ -130,10 +139,19 @@ def test_accuracy() -> float:
 
     return num_correct / 10_000
 
+def graph_loss() -> None:
+    plt.figure(figsize=(6.5, 6.5), num="Loss Graph")
+    plt.title("Average Loss per Batch")
+    plt.xlabel("Batch")
+    plt.ylabel("Average Cross Entropy Loss")
+    plt.plot(losses)
+    plt.show()
+
 def main() -> None:
     print(f"Init Time: {init():.2f}s")
     print(f"Train Time: {train():.2f}s")
     print(f"Accuracy: {test_accuracy():.2%}")
+    graph_loss()
 
 if __name__ == "__main__":
     main()
