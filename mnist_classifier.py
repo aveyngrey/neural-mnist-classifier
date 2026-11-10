@@ -91,6 +91,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 db_output += d_error.T
 
                 dw_hidden += (d_error @ weights_output * d_relu(a_hidden)).T @ input
+                db_hidden += (d_error @ weights_output * d_relu(a_hidden)).T
                 
                 sample_index += 1
 
