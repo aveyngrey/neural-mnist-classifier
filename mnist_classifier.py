@@ -102,7 +102,7 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
                 db_hidden += (d_error @ weights_output * d_relu(a_hidden)).T
                 
                 sample_index += 1
-
+            # gradient descent
             weights_hidden -= learning_rate * dw_hidden
             biases_hidden -= learning_rate * db_hidden
             weights_output -= learning_rate * dw_output
@@ -110,11 +110,24 @@ def train(epochs: int = 15, batch_size: int = 64, learning_rate: float = 0.01) -
 
     return time.perf_counter() - start_time
 
-    
+def test_accuracy() -> float:
+    # forward pass
+    z_hidden = inputs_test @ weights_hidden.T + biases_hidden.T
+    a_hidden = relu(z_hidden)
+    z_output = a_hidden @ weights_output.T + biases_output.T
+    a_output = np.zeros((10_000, 10))
+    for i, row in enumerate(z_output):
+        a_output[i] = softmax(row)
+
+    predictions = np.argmax(a_output, axis=1)
+    num_correct = np.sum((predictions == targets_test).astype(int))
+
+    return num_correct / 10_000
 
 def main() -> None:
     print(f"Init Time: {init():.2f}")
-    print(f"Train Time: {train():.2f}")
+    # print(f"Train Time: {train():.2f}")
+    print(f"Accuracy: {test_accuracy():.2%}")
 
 if __name__ == "__main__":
     main()
