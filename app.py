@@ -1,18 +1,12 @@
 import pygame
 import mnist_classifier
+import numpy as np
 
-GRID_SIZE = 28
-CELL_SIZE = 25
-DISPLAY_SIZE = GRID_SIZE * CELL_SIZE
+def draw_grid(screen, grid_states):
+    GRID_SIZE = 28
+    CELL_SIZE = 25
+    DISPLAY_SIZE = GRID_SIZE * CELL_SIZE
 
-grid_states = [[False for x in range(GRID_SIZE)] for y in range(GRID_SIZE)]
-
-pygame.init()
-screen = pygame.display.set_mode((DISPLAY_SIZE, DISPLAY_SIZE))
-pygame.display.set_caption("Digit Detector")
-clock = pygame.time.Clock()
-
-def draw_grid():
     for x in range(1, GRID_SIZE):
         x *= CELL_SIZE
         pygame.draw.line(screen, pygame.Color("darkgray"), (x, 0), (x, DISPLAY_SIZE))
@@ -23,12 +17,23 @@ def draw_grid():
 
     for x in range(GRID_SIZE):
         for y in range(GRID_SIZE):
-            if grid_states[x][y]:
+            if grid_states[y][x]:
                 cell = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
                 pygame.draw.rect(screen, pygame.Color("white"), cell)
  
-def main():
+def main(weights_hidden, biases_hidden, weights_output, biases_output):
     running = True
+
+    GRID_SIZE = 28
+    CELL_SIZE = 25
+    DISPLAY_SIZE = GRID_SIZE * CELL_SIZE
+
+    grid_states = [[False for x in range(GRID_SIZE)] for y in range(GRID_SIZE)]
+
+    pygame.init()
+    screen = pygame.display.set_mode((DISPLAY_SIZE, DISPLAY_SIZE))
+    pygame.display.set_caption("Interactive Digit Classifier")
+    clock = pygame.time.Clock()
 
     while running:
         for event in pygame.event.get():
@@ -40,22 +45,28 @@ def main():
                     for x in range(GRID_SIZE):
                         for y in range(GRID_SIZE):
                             grid_states[x][y] = False
+                if event.key == pygame.K_RETURN:
+                    np_array_grid = np.array(grid_states)
+                    np_array_grid = np_array_grid.astype(int)
+                    np_array_grid = np.ravel(np_array_grid)
+                    np_array_grid = np.reshape(np_array_grid, (1, 784))
+                    print(mnist_classifier.predict(np_array_grid, weights_hidden, biases_hidden, weights_output, biases_output))
 
 
         mouse_buttons = pygame.mouse.get_pressed()
         x, y = pygame.mouse.get_pos()
 
         if mouse_buttons[0]:
-            grid_states[x // CELL_SIZE][y // CELL_SIZE] = True
+            grid_states[y // CELL_SIZE][x // CELL_SIZE] = True
         if mouse_buttons[2]:
-            grid_states[x // CELL_SIZE][y // CELL_SIZE] = False
+            grid_states[y // CELL_SIZE][x // CELL_SIZE] = False
         
         screen.fill(pygame.Color("black"))
-        draw_grid()
+        draw_grid(screen, grid_states)
         pygame.display.flip()
-        clock.tick(45)
+        clock.tick(120)
 
     pygame.quit()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main(0, 0, 0, 0)

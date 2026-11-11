@@ -3,6 +3,7 @@ import numpy.typing as npt
 from sklearn.datasets import fetch_openml
 import time
 import matplotlib.pyplot as plt
+import app
 
 # uses np zero array of shape (0, 0) as a placeholder
 inputs_train: npt.NDArray = np.zeros((0, 0))
@@ -147,10 +148,19 @@ def graph_loss() -> None:
     plt.plot(losses)
     plt.show()
 
+def predict(input, weights_hidden, biases_hidden, weights_output, biases_output) -> int:
+    z_hidden = input @ weights_hidden.T + biases_hidden.T
+    a_hidden = relu(z_hidden)
+    z_output = a_hidden @ weights_output.T + biases_output.T
+    a_output = softmax(z_output)
+    prediction = np.argmax(a_output)
+    return int(prediction)
+
 def main() -> None:
     print(f"Init Time: {init():.2f}s")
     print(f"Train Time: {train():.2f}s")
     print(f"Accuracy: {test_accuracy():.2%}")
+    app.main(weights_hidden, biases_hidden, weights_output, biases_output)
     graph_loss()
 
 if __name__ == "__main__":
