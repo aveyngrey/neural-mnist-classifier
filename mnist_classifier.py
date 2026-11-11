@@ -148,13 +148,13 @@ def graph_loss() -> None:
     plt.plot(losses)
     plt.show()
 
-def predict(input, weights_hidden, biases_hidden, weights_output, biases_output) -> int:
+def predict(input, weights_hidden, biases_hidden, weights_output, biases_output):
     z_hidden = input @ weights_hidden.T + biases_hidden.T
     a_hidden = relu(z_hidden)
     z_output = a_hidden @ weights_output.T + biases_output.T
     a_output = softmax(z_output)
     prediction = np.argmax(a_output)
-    return int(prediction)
+    return (int(prediction), a_output)
 
 def main() -> None:
     print(f"Init Time: {init():.2f}s")
