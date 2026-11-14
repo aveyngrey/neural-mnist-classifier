@@ -1,40 +1,26 @@
 import pygame
 import mnist_classifier
 import numpy as np
-
-def draw_grid(screen, grid_states):
-    GRID_SIZE = 28
-    CELL_SIZE = 25
-    DISPLAY_SIZE = GRID_SIZE * CELL_SIZE
-
-    for x in range(1, GRID_SIZE):
-        x *= CELL_SIZE
-        pygame.draw.line(screen, pygame.Color("darkgray"), (x, 0), (x, DISPLAY_SIZE))
-
-    for y in range(1, GRID_SIZE):
-            y *= CELL_SIZE
-            pygame.draw.line(screen, pygame.Color("darkgray"), (0, y), (DISPLAY_SIZE, y))
-
-    for x in range(GRID_SIZE):
-        for y in range(GRID_SIZE):
-            if grid_states[y][x]:
-                cell = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-                pygame.draw.rect(screen, pygame.Color("white"), cell)
  
 def main(weights_hidden, biases_hidden, weights_output, biases_output):
-    running = True
-
     GRID_SIZE = 28
     CELL_SIZE = 25
     DISPLAY_SIZE = GRID_SIZE * CELL_SIZE
 
-    grid_states = [[False for x in range(GRID_SIZE)] for y in range(GRID_SIZE)]
+    BLACK = pygame.Color("black")
+    WHITE = pygame.Color("white")
+    BRUSH_SIZE = 25
 
     pygame.init()
     screen = pygame.display.set_mode((DISPLAY_SIZE, DISPLAY_SIZE))
     pygame.display.set_caption("Interactive Digit Classifier")
     clock = pygame.time.Clock()
 
+    canvas = pygame.Surface((DISPLAY_SIZE, DISPLAY_SIZE))
+    canvas.fill(BLACK)
+
+    last_pos = None
+    running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -42,42 +28,36 @@ def main(weights_hidden, biases_hidden, weights_output, biases_output):
                 break
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_c:
-                    for x in range(GRID_SIZE):
-                        for y in range(GRID_SIZE):
-                            grid_states[x][y] = False
+                    canvas.fill(BLACK)
                 if event.key == pygame.K_RETURN:
-                    np_array_grid = np.array(grid_states)
-                    np_array_grid = np_array_grid.astype(int)
-                    np_array_grid = np.ravel(np_array_grid)
-                    np_array_grid = np.reshape(np_array_grid, (1, 784))
-                    print(mnist_classifier.predict(np_array_grid, weights_hidden, biases_hidden, weights_output, biases_output))
+                    scaled_canvas = pygame.transform.smoothscale(canvas, (GRID_SIZE, GRID_SIZE))
+                    array = pygame.surfarray.array3d(scaled_canvas)[:, :, 0]
+                    array = array.astype(np.float32) / 255.0
+                    array = array.T
+                    array = array.reshape(1, 784)
+                    prediction, confidence = mnist_classifier.predict(array, 
+                                                                      weights_hidden=weights_hidden,
+                                                                      biases_hidden=biases_hidden,
+                                                                      weights_output=weights_output,
+                                                                      biases_output=biases_output)
+                    print(f"Prediction: {prediction}")
+                    print(f"Confidence: {confidence:.2%}")
+                    print("-------------------------------")
 
 
         mouse_buttons = pygame.mouse.get_pressed()
-        x, y = pygame.mouse.get_pos()
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_x, mouse_y = mouse_pos
 
-        directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
-
-        if 0 <= x <= DISPLAY_SIZE and 0 <= y <= DISPLAY_SIZE:
-            if mouse_buttons[0]:
-                grid_states[y // CELL_SIZE][x // CELL_SIZE] = True
-                for direction in directions:
-                    new_x = direction[0] + x // CELL_SIZE
-                    new_y = direction[1] + y // CELL_SIZE
-                    if 0 <= new_x < GRID_SIZE and 0 <= new_y < GRID_SIZE:
-                        grid_states[new_y][new_x] = True
-
-            if mouse_buttons[2]:
-                grid_states[y // CELL_SIZE][x // CELL_SIZE] = False
-                for direction in directions:
-                    new_x = direction[0] + x // CELL_SIZE
-                    new_y = direction[1] + y // CELL_SIZE
-                    if 0 <= new_x < GRID_SIZE and 0 <= new_y < GRID_SIZE:
-                        grid_states[new_y][new_x] = False
-            
+        if mouse_buttons[0]:
+            pygame.draw.circle(canvas, WHITE, mouse_pos, BRUSH_SIZE - 1)
+            if last_pos is not None:
+                pygame.draw.line(canvas, WHITE, mouse_pos, last_pos, width=BRUSH_SIZE * 2)
+            last_pos = mouse_pos
+        else:
+            last_pos = None
         
-        screen.fill(pygame.Color("black"))
-        draw_grid(screen, grid_states)
+        screen.blit(canvas, (0, 0))
         pygame.display.flip()
         clock.tick(120)
 

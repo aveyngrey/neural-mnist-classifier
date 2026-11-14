@@ -154,14 +154,16 @@ def predict(input, weights_hidden, biases_hidden, weights_output, biases_output)
     z_output = a_hidden @ weights_output.T + biases_output.T
     a_output = softmax(z_output)
     prediction = np.argmax(a_output)
-    return (int(prediction), a_output)
+    confidence = a_output[0][prediction]
+    return (int(prediction), confidence)
 
 def main() -> None:
     print(f"Init Time: {init():.2f}s")
     print(f"Train Time: {train():.2f}s")
     print(f"Accuracy: {test_accuracy():.2%}")
-    app.main(weights_hidden, biases_hidden, weights_output, biases_output)
+    print("-------------------------------")
     graph_loss()
+    app.main(weights_hidden, biases_hidden, weights_output, biases_output)
 
 if __name__ == "__main__":
     main()
