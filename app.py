@@ -67,6 +67,8 @@ def main(weights_hidden, biases_hidden, weights_output, biases_output):
             if event.type == pygame.QUIT:
                 running = False
                 break
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                prediction_text = ""
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_c:
                     canvas.fill(BLACK)
@@ -100,8 +102,6 @@ def main(weights_hidden, biases_hidden, weights_output, biases_output):
                 pygame.draw.line(canvas, WHITE, mouse_pos, last_pos, width=BRUSH_SIZE * 2)
             last_pos = mouse_pos
 
-            if prediction_text:
-                prediction_text = ""
         else:
             last_pos = None
 
