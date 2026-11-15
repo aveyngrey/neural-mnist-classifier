@@ -45,9 +45,13 @@ def main(weights_hidden, biases_hidden, weights_output, biases_output):
 
     BLACK = pygame.Color("black")
     WHITE = pygame.Color("white")
+    GREEN = pygame.Color("green")
     BRUSH_SIZE = 25
 
     pygame.init()
+    pygame.font.init()
+    font = pygame.font.Font(None, 36)
+
     screen = pygame.display.set_mode((DISPLAY_SIZE, DISPLAY_SIZE))
     pygame.display.set_caption("Interactive Digit Classifier")
     clock = pygame.time.Clock()
@@ -55,6 +59,7 @@ def main(weights_hidden, biases_hidden, weights_output, biases_output):
     canvas = pygame.Surface((DISPLAY_SIZE, DISPLAY_SIZE))
     canvas.fill(BLACK)
 
+    prediction_text = ""
     last_pos = None
     running = True
     while running:
@@ -65,33 +70,23 @@ def main(weights_hidden, biases_hidden, weights_output, biases_output):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_c:
                     canvas.fill(BLACK)
+                    prediction_text = ""
                 if event.key == pygame.K_RETURN:
                     scaled_canvas = pygame.transform.smoothscale(canvas, (GRID_SIZE, GRID_SIZE))
                     array = pygame.surfarray.array3d(scaled_canvas)[:, :, 0]
                     array = array.astype(np.float32) / 255.0
                     array = array.T
-
-                    # for row in array:
-                    #     print("\n")
-                    #     for x in row:
-                    #         num = 0 if x == 0 else 1
-                    #         print(num, end=" ")
-                    # print("-------------------------------")
-
                     array = shift_to_center(array)
-                    
-                    # for row in array:
-                    #     print("\n")
-                    #     for x in row:
-                    #         num = 0 if x == 0 else 1
-                    #         print(num, end=" ")
-
                     array = array.reshape(1, 784)
-                    prediction, confidence = \
-                                    mnist_classifier.predict(array, weights_hidden, 
-                                    biases_hidden, weights_output, biases_output)
-                    print(f"Prediction: {prediction}")
-                    print(f"Confidence: {confidence:.2%}")
+                    prediction, confidence = mnist_classifier.predict(
+                        array, 
+                        weights_hidden, 
+                        biases_hidden, 
+                        weights_output, 
+                        biases_output
+                    )        
+                    prediction_text = f"Prediction: {prediction} ({confidence:.2%})"
+                    print(prediction_text)
                     print("-------------------------------")
 
 
@@ -104,10 +99,22 @@ def main(weights_hidden, biases_hidden, weights_output, biases_output):
             if last_pos is not None:
                 pygame.draw.line(canvas, WHITE, mouse_pos, last_pos, width=BRUSH_SIZE * 2)
             last_pos = mouse_pos
+
+            if prediction_text:
+                prediction_text = ""
         else:
             last_pos = None
-        
+
         screen.blit(canvas, (0, 0))
+
+        if prediction_text:
+            text_surface = font.render(prediction_text, True, GREEN)
+            text_rect = text_surface.get_rect(topleft=(15, 15))
+            background_rect = text_rect.inflate(16, 16)
+            pygame.draw.rect(screen, BLACK, background_rect)
+            pygame.draw.rect(screen, GREEN, background_rect, 2)
+            screen.blit(text_surface, text_rect)
+        
         pygame.display.flip()
         clock.tick(120)
 
