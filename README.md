@@ -49,6 +49,7 @@ I made this project because I'm really passionate about machine learning. I have
 ## Challenges
 
 * **The Interactive Digit Classifier:** It started out as a 28x28 grid that you could drag your mouse across to fill in the cells. This resulted in poor accuracy because each MNIST image was made via taking handwritten digits, centering the digit by its center of mass, and then transforming it into a 28x28 grid of grayscale values. To resemble this process, I switched from drawing on a 28x28 grid to drawing on a freehand canvas that calculates the drawing's center of mass and aligning it with the center of the image before feeding it to the network, skyrocketing the network's accuracy.
+* **Data Shuffling:** In the first draft of my neural network, the accuracy ratings were hovering around 92% and the error graph looked quite erratic. I thought this was odd so I did some research online and found out the dataset was organized by digit! This completely messes up training because, for example, training on all of the 0 digits at a time saturates gradient descent. And then the model would receive all of the 1 digits at a time, which would again saturate gradient descent and could revert some of the changes that the model was learning to make when it was training off of the 0 digits. The fix was easy (I just had to implement data shuffling per epoch), but finding the issue itself was a little tricky.
 
 ## Installation
 
